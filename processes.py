@@ -4,48 +4,41 @@ from abc import ABC,abstractmethod
 class Process(ABC) : 
     def __init__(self):
         pass
-    
-    @abstractmethod
-    def vidCvtGray(self) : 
+
+    def vidRGBCvtGray(self) : 
         """must impleated with VideoProcess class"""
         pass
-    @abstractmethod
-    def vidCvtBlackWhite(self) :
+    
+    def vidRGBCvtBlackWhite(self) :
         """must impleated with VideoProcess class"""
         pass
     
     # convert rgb image to gray image
-    def imgRGBCvtGray(self) : 
-        grayImage = self.__image
+    def imgRGBCvtGray(self,image) : 
+        grayImage = image
         grayImage = grayImage[:,:,0]//3+grayImage[:,:,1]//3+grayImage[:,:,2]//3
         return grayImage
     
     # convert rgb image to black & white image
-    def imgCvtBlackWhite(self) : 
-        grayImage = self.imgRGBCvtGray()
-        for i in range(grayImage.shape[0]) : 
-            for j in range(grayImage.shape[1]) : 
-                grayImage[i,j] = 0 if grayImage[i,j] <128 else 255
-
+    def imgRGBCvtBlackWhite(self,image) : 
+        grayImage = self.imgRGBCvtGray(image)
+        grayImage[grayImage < 128] = 0
+        grayImage[grayImage >= 128] = 255
         return grayImage
+    
     # convert rgb or gray image convert to dark mode with specific rate
-    def convertDark(self,isGray,rate) : 
-        darkRGBImage = self.__image
+    def imgCvtDarker(self,image,isGray,rate) : 
+        darkRGBImage = image
         if not isGray :
             for i in range(darkRGBImage.shape[0]) : 
                 for j in range(darkRGBImage.shape[1]) :
                     for k in range(3) : 
                         darkRGBImage[i,j,k] = darkRGBImage[i,j,k] //rate
-                        # if darkRGBImage[i,j,k] >255 :
-                        #     darkRGBImage[i,j,k] = 255
-                        # if darkRGBImage[i,j,k] < 0 :
-                        #     darkRGBImage[i,j,k] = 0
             return self.normalizationRate(darkRGBImage,0,255,isGray=isGray)
 
         else : 
-            grayImage = self.imgRGBCvtGray()
+            grayImage = self.imgRGBCvtGray(image=image)
             grayDarkImage = grayImage[:,:] * rate
-            print('grayDark',grayDarkImage)
             return self.normalizationRate(grayDarkImage,0,255,isGray=isGray)
 
     #normalize unormal pixels of an image 
